@@ -15,4 +15,9 @@ Router.get('/', async (req, res) => {
 Router.get('/signup', (req, res)=>{
     return res.render("signup")
 })
+
+Router.get('/login', (req, res)=>{
+    return res.render("login")
+})
+
 module.exports = Router;
