@@ -387,8 +387,13 @@
             </a>
             </span>
             <span>
-            <a href="/signup" class="nav-link">Signup</a>
-            <a href="/login" class="nav-link">Login</a>
+            <% if (!user) { %>
+                <a href="/signup" class="nav-link">Signup</a>
+                <a href="/login" class="nav-link">Login</a>
+            <% } else { %>
+                <span style="margin-right: 16px; font-size: 14px; color: var(--muted);">Welcome, <%= user.email %></span>
+                <a href="/user/logout" class="nav-link">Logout</a>
+            <% } %>
             </span>
         </header>
 

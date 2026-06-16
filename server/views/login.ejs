@@ -271,7 +271,13 @@
                 <h2>Login</h2>
                 <p>Enter your account details to continue.</p>
 
-                <form action="/user/login" method="POST">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button type="button" class="tab-btn active" onclick="switchTab('user')">User Login</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('admin')">Admin Login</button>
+                </div>
+
+                <!-- User Login Form -->
+                <form id="userForm" action="/user/login" method="POST" style="display: block;">
                     <div class="field">
                         <label for="email">Email</label>
                         <input type="email" name="email" id="email" placeholder="you@example.com" autocomplete="email" required>
@@ -285,9 +291,67 @@
                     <button type="submit">Login</button>
                 </form>
 
+                <!-- Admin Login Form -->
+                <form id="adminForm" action="/user/admin-login" method="POST" style="display: none;">
+                    <div class="field">
+                        <label for="adminEmail">Email</label>
+                        <input type="email" name="email" id="adminEmail" placeholder="admin@example.com" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" name="password" id="adminPassword" placeholder="Admin password" required>
+                    </div>
+
+                    <button type="submit">Admin Login</button>
+                </form>
+
                 <div class="footer-link">
                     New to Url Shortner? <a href="/signup">Create an account</a>
                 </div>
+
+                <style>
+                    .tab-btn {
+                        padding: 10px 15px;
+                        border: 1px solid var(--line);
+                        border-radius: 6px;
+                        background: #ffffff;
+                        color: var(--muted);
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 160ms ease;
+                    }
+
+                    .tab-btn.active {
+                        background: var(--accent);
+                        color: #ffffff;
+                        border-color: var(--accent);
+                    }
+
+                    .tab-btn:hover {
+                        border-color: var(--accent);
+                    }
+                </style>
+
+                <script>
+                    function switchTab(tab) {
+                        const userForm = document.getElementById('userForm');
+                        const adminForm = document.getElementById('adminForm');
+                        const buttons = document.querySelectorAll('.tab-btn');
+
+                        buttons.forEach(btn => btn.classList.remove('active'));
+
+                        if (tab === 'user') {
+                            userForm.style.display = 'block';
+                            adminForm.style.display = 'none';
+                            buttons[0].classList.add('active');
+                        } else {
+                            userForm.style.display = 'none';
+                            adminForm.style.display = 'block';
+                            buttons[1].classList.add('active');
+                        }
+                    }
+                </script>
             </section>
         </section>
     </main>

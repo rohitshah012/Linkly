@@ -2,7 +2,7 @@ const express = require("express");
 const { ConnectMongo } = require("./connection/connectMongo");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const {RestrictToLoginUserOnly, CheckAuth} = require("./middlewares/auth");
+const {CheckForAuthentication , restrictTo} = require("./middlewares/auth");
 
 
 
@@ -23,6 +23,7 @@ ConnectMongo(mongoLink);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
+app.use(CheckForAuthentication);
 
 
 //ejs setup
@@ -31,9 +32,9 @@ app.set("views" , path.resolve("./views"));
 
 
 // Routes
-app.use("/url", RestrictToLoginUserOnly, urlRoute);
+app.use("/url", restrictTo(["NORMAL"]), urlRoute);
 app.use("/user", userRoute)
-app.use("/", CheckAuth, staticRoute);
+app.use("/", staticRoute);
 
 
 

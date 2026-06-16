@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | URL Shortener</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --ink: #172033;
+            --muted: #647086;
+            --line: #dfe5ee;
+            --accent: #0f766e;
+            --accent-dark: #115e59;
+            --warm: #f59e0b;
+            --shadow: 0 18px 50px rgba(23, 32, 51, 0.1);
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(145deg, rgba(15, 118, 110, 0.1), transparent 36%),
+                linear-gradient(315deg, rgba(245, 158, 11, 0.12), transparent 34%),
+                var(--bg);
+        }
+
+        .page {
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 26px 0 44px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--ink);
+            font-size: 15px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            color: #172033;
+            background: #fbbf24;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-link {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--accent-dark);
+            background: rgba(255, 255, 255, 0.72);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            padding: 0 12px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 800;
+            background: rgba(15, 118, 110, 0.1);
+            border-radius: 20px;
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .header-title {
+            margin-bottom: 26px;
+        }
+
+        .header-title h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+        }
+
+        .header-title p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border: 1px solid rgba(223, 229, 238, 0.9);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 24px;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-card span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .users-section {
+            margin-bottom: 26px;
+        }
+
+        .user-card {
+            border: 1px solid rgba(223, 229, 238, 0.9);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .user-header {
+            padding: 20px;
+            background: linear-gradient(160deg, rgba(15, 118, 110, 0.96), rgba(23, 32, 51, 0.96)), #0f766e;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info h3 {
+            margin: 0 0 4px;
+            font-size: 18px;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .user-stat {
+            text-align: center;
+        }
+
+        .user-stat strong {
+            display: block;
+            font-size: 18px;
+        }
+
+        .user-stat span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .urls-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .urls-table thead {
+            background: #f8fafc;
+        }
+
+        .urls-table th {
+            padding: 12px 16px;
+            text-align: left;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .urls-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--line);
+            color: #263145;
+            font-size: 14px;
+        }
+
+        .urls-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .short-id {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 6px;
+            color: var(--accent-dark);
+            background: #ccfbf1;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .url-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .visit-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 0 8px;
+            border-radius: 6px;
+            background: rgba(15, 118, 110, 0.1);
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-stats {
+                margin-top: 12px;
+            }
+
+            .url-cell {
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .page {
+                width: min(100% - 24px, 1200px);
+                padding-top: 18px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-title h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .urls-table {
+                font-size: 12px;
+            }
+
+            .urls-table th,
+            .urls-table td {
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="topbar">
+            <span>
+                <a href="/" class="logo">
+                    <span class="logo-mark">🔗</span>
+                    <span>URL Shortener</span>
+                </a>
+            </span>
+            <span class="nav-links">
+                <span class="admin-badge">Admin Dashboard</span>
+                <a href="/user/logout" class="nav-link">Logout</a>
+            </span>
+        </header>
+
+        <section class="header-title">
+            <h1>Admin Dashboard</h1>
+            <p>Monitor all users and their URL activities</p>
+        </section>
+
+        <section class="users-section">
+            <% if (users && users.length > 0) { %>
+                <% 
+                    let totalUsers = users.length;
+                    let totalUrls = users.reduce((sum, u) => sum + u.totalUrls, 0);
+                    let totalVisits = users.reduce((sum, u) => sum + u.totalVisits, 0);
+                %>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <strong><%= totalUsers %></strong>
+                        <span>Total Users</span>
+                    </div>
+                    <div class="stat-card">
+                        <strong><%= totalUrls %></strong>
+                        <span>Total URLs Created</span>
+                    </div>
+                    <div class="stat-card">
+                        <strong><%= totalVisits %></strong>
+                        <span>Total Visits</span>
+                    </div>
+                </div>
+
+                <% users.forEach(user => { %>
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-info">
+                                <h3><%= user.name %></h3>
+                                <p><%= user.email %></p>
+                            </div>
+                            <div class="user-stats">
+                                <div class="user-stat">
+                                    <strong><%= user.totalUrls %></strong>
+                                    <span>URLs</span>
+                                </div>
+                                <div class="user-stat">
+                                    <strong><%= user.totalVisits %></strong>
+                                    <span>Total Visits</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (user.urls && user.urls.length > 0) { %>
+                            <table class="urls-table">
+                                <thead>
+                                    <tr>
+                                        <th>Short URL</th>
+                                        <th class="url-cell">Redirect URL</th>
+                                        <th>Visits</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% user.urls.forEach(url => { %>
+                                        <tr>
+                                            <td>
+                                                <a href="http://localhost:8002/<%= url.Shortid %>" target="_blank" style="color: var(--accent-dark); font-weight: 700; text-decoration: none;">
+                                                    http://localhost:8002/<%= url.Shortid %>
+                                                </a>
+                                            </td>
+                                            <td class="url-cell" title="<%= url.RedirectUrl %>"><%= url.RedirectUrl %></td>
+                                            <td>
+                                                <span class="visit-badge"><%= url.VisitHistory.length %></span>
+                                            </td>
+                                            <td><%= new Date(url.createdAt).toLocaleDateString() %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <p>No URLs created yet</p>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="empty-state">
+                    <p>No users found</p>
+                </div>
+            <% } %>
+        </section>
+    </main>
+</body>
+</html>
