@@ -20,16 +20,13 @@ async function createAdmin() {
 
         const existingAdmin = await User.findOne({ email: adminEmail });
         if (existingAdmin) {
-            if (existingAdmin.role !== "ADMIN") {
-                existingAdmin.role = "ADMIN";
-                existingAdmin.password = await bcrypt.hash(adminPassword, 10);
-                existingAdmin.name = adminName;
-                await existingAdmin.save();
-                console.log("Existing user promoted to admin");
-            } else {
-                console.log("Admin user already exists");
-            }
-            process.exit(0);
+            const wasAdmin = existingAdmin.role === "ADMIN";
+            existingAdmin.role = "ADMIN";
+            existingAdmin.password = await bcrypt.hash(adminPassword, 10);
+            existingAdmin.name = adminName;
+            await existingAdmin.save();
+            console.log(wasAdmin ? "Admin credentials updated" : "Existing user promoted to admin");
+            return;
         }
 
         const hashedPassword = await bcrypt.hash(adminPassword, 10);
@@ -43,10 +40,11 @@ async function createAdmin() {
 
         console.log("Admin user created successfully");
         console.log("Email:", adminEmail);
-        process.exit(0);
     } catch (error) {
         console.error("Error creating admin:", error);
-        process.exit(1);
+        process.exitCode = 1;
+    } finally {
+        await mongoose.disconnect();
     }
 }
 

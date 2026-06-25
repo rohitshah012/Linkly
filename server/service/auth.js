@@ -1,10 +1,5 @@
 const jwt = require("jsonwebtoken");
 
-const dotenv = require ("dotenv");
-
-dotenv.config();
-
-
 function setuser(user) {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET is not configured");
@@ -20,17 +15,13 @@ function setuser(user) {
 }
 
 function getuser(Token) {
-    if (!Token) return null
-   
+    if (!Token || !process.env.JWT_SECRET) return null;
+
     try {
-         return jwt.verify(Token, process.env.JWT_SECRET)
-        
+        return jwt.verify(Token, process.env.JWT_SECRET);
     } catch (error) {
-        return null
-        
+        return null;
     }
-
-
 }
 
 module.exports = {

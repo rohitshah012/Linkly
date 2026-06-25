@@ -9,6 +9,13 @@ async function ConnectMongo() {
     console.log("MongoDB connected");
 }
 
+async function disconnectMongo() {
+    if (mongoose.connection.readyState !== 0) {
+        await mongoose.disconnect();
+    }
+}
+
 module.exports = {
     ConnectMongo,
+    disconnectMongo,
 };

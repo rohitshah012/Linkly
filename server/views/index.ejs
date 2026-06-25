@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create short, memorable links and track every click.">
+    <title>Linkly — Smarter short links</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/script.js" defer></script>
+</head>
+<body>
+    <%
+        const linkCount = locals.urls ? urls.length : 0;
+        const totalClicks = locals.urls
+            ? urls.reduce((total, url) => total + url.VisitHistory.length, 0)
+            : 0;
+        const shortUrl = locals.id ? `${locals.baseUrl || ""}/url/${id}` : "";
+    %>
+
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="container nav-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                </span>
+                <span>Linkly</span>
+            </a>
+
+            <button class="menu-button" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="<%= user ? "#dashboard" : "/login" %>"><%= user ? "My links" : "Dashboard" %></a>
+                <a href="#pricing">Pricing</a>
+                <a href="#about">About</a>
+            </div>
+
+            <div class="nav-actions">
+                <% if (user) { %>
+                    <span class="user-chip" title="<%= user.email %>"><%= user.email %></span>
+                    <form action="/user/logout" method="POST">
+                        <button type="submit" class="button button-ghost">Log out</button>
+                    </form>
+                <% } else { %>
+                    <a class="button button-ghost" href="/login">Log in</a>
+                    <a class="button button-primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div>
+                    <div class="eyebrow">
+                        <span class="eyebrow-dot"></span>
+                        Simple links. Powerful results.
+                    </div>
+                    <h1>Make every link <span class="gradient-text">work harder.</span></h1>
+                    <p class="hero-copy">
+                        Turn long, messy URLs into clean links your audience will trust. Share them anywhere and see every click from one beautifully simple dashboard.
+                    </p>
+                    <div class="hero-points">
+                        <span class="hero-point"><span class="check">✓</span>No setup required</span>
+                        <span class="hero-point"><span class="check">✓</span>Real-time click tracking</span>
+                        <span class="hero-point"><span class="check">✓</span>Share anywhere</span>
+                    </div>
+                </div>
+
+                <aside class="shortener-card" id="shorten" aria-labelledby="shortener-title">
+                    <p class="card-label">Create your link</p>
+                    <h2 id="shortener-title">Shorten a URL</h2>
+                    <p class="card-copy">Paste your destination below. We will turn it into an eight-character short link.</p>
+
+                    <% if (user) { %>
+                        <form class="shortener-form" method="POST" action="/url">
+                            <% if (locals.error) { %>
+                                <div class="alert alert-error"><%= error %></div>
+                            <% } %>
+
+                            <div class="input-wrap">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                </svg>
+                                <input class="url-input" type="url" name="url" id="url" placeholder="https://your-long-url.com" aria-label="Destination URL" required>
+                            </div>
+                            <button class="generate-button" type="submit">Shorten my link →</button>
+                            <p class="form-note">
+                                <span aria-hidden="true">🔒</span>
+                                Your links are private to your account
+                            </p>
+                        </form>
+                    <% } else { %>
+                        <form class="shortener-form" method="POST" action="/url">
+                            <div class="input-wrap">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                </svg>
+                                <input class="url-input" type="url" name="url" placeholder="https://your-long-url.com" aria-label="Destination URL" required>
+                            </div>
+                            <button class="generate-button" type="submit">Generate link →</button>
+                        </form>
+                    <% } %>
+
+                    <% if (locals.id) { %>
+                        <div class="result-card" aria-live="polite">
+                            <span class="result-label">Your link is ready</span>
+                            <div class="result-row">
+                                <a class="result-link" href="/url/<%= id %>" target="_blank" rel="noopener noreferrer"><%= shortUrl %></a>
+                                <button class="copy-button" type="button" data-copy="<%= shortUrl %>">Copy</button>
+                            </div>
+                        </div>
+                    <% } %>
+                </aside>
+            </div>
+        </section>
+
+        <section class="stats-strip" aria-label="Account summary">
+            <div class="container stats-grid">
+                <div class="stat">
+                    <strong><%= linkCount %></strong>
+                    <span>Short links created</span>
+                </div>
+                <div class="stat">
+                    <strong><%= totalClicks %></strong>
+                    <span>Total link visits</span>
+                </div>
+                <div class="stat">
+                    <strong>8 chars</strong>
+                    <span>Clean, memorable IDs</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-soft" id="features">
+            <div class="container">
+                <div class="section-heading">
+                    <span class="section-kicker">Everything you need</span>
+                    <h2>More than a shorter URL</h2>
+                    <p>Linkly gives you a focused set of tools to share confidently, understand engagement, and keep every destination organized.</p>
+                </div>
+
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </div>
+                        <h3>Instant short links</h3>
+                        <p>Create compact, shareable URLs in a single click. No confusing settings or unnecessary steps.</p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/>
+                                <path d="m7 16 4-5 4 3 5-7"/>
+                            </svg>
+                        </div>
+                        <h3>Click analytics</h3>
+                        <p>See how often each link is visited and quickly understand which destinations attract attention.</p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                                <path d="m9 12 2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <h3>Secure by default</h3>
+                        <p>Your dashboard belongs to you. Account-based ownership keeps link management safely separated.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="dashboard">
+            <div class="container">
+                <div class="dashboard-card">
+                    <div class="dashboard-head">
+                        <div>
+                            <h2><%= user ? "Your link dashboard" : "Your dashboard starts here" %></h2>
+                            <p><%= user ? "Review destinations, open short links, and monitor visits." : "Log in to manage short links and see click activity in one place." %></p>
+                        </div>
+                        <span class="count-badge"><%= linkCount %> <%= linkCount === 1 ? "link" : "links" %></span>
+                    </div>
+
+                    <% if (!user) { %>
+                        <div class="empty-state">
+                            <div class="empty-icon" aria-hidden="true">↗</div>
+                            <h3>Sign in to unlock your dashboard</h3>
+                            <p><a class="short-link" href="/login">Log in</a> or <a class="short-link" href="/signup">create a free account</a> to start shortening URLs.</p>
+                        </div>
+                    <% } else if (locals.urls && urls.length) { %>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Short link</th>
+                                        <th>Destination</th>
+                                        <th>Clicks</th>
+                                        <th>Created</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% urls.forEach((url) => { %>
+                                        <tr>
+                                            <td>
+                                                <a class="short-link" href="/url/<%= url.Shortid %>" target="_blank" rel="noopener noreferrer">
+                                                    /url/<%= url.Shortid %>
+                                                </a>
+                                            </td>
+                                            <td class="destination" title="<%= url.RedirectUrl %>"><%= url.RedirectUrl %></td>
+                                            <td><span class="click-badge"><%= url.VisitHistory.length %></span></td>
+                                            <td><%= new Date(url.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %></td>
+                                            <td>
+                                                <button class="delete-button" type="button" data-short-id="<%= url.Shortid %>">Delete</button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-icon" aria-hidden="true">↗</div>
+                            <h3>No links yet</h3>
+                            <p>Your first short link will appear here after you create it above.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-soft" id="pricing">
+            <div class="container">
+                <div class="section-heading">
+                    <span class="section-kicker">Simple pricing</span>
+                    <h2>Start free. Grow when you are ready.</h2>
+                    <p>No complicated calculators or surprise fees. Pick the plan that matches the way you share.</p>
+                </div>
+
+                <div class="pricing-grid">
+                    <article class="price-card">
+                        <h3>Starter</h3>
+                        <p class="price-description">For personal projects and occasional sharing.</p>
+                        <div class="price">$0 <small>/ forever</small></div>
+                        <ul class="price-features">
+                            <li><span class="check">✓</span>Unlimited short links</li>
+                            <li><span class="check">✓</span>Basic click tracking</li>
+                            <li><span class="check">✓</span>Personal dashboard</li>
+                        </ul>
+                        <a class="button button-ghost" href="<%= user ? "#shorten" : "/signup" %>"><%= user ? "Current plan" : "Start free" %></a>
+                    </article>
+
+                    <article class="price-card popular">
+                        <span class="popular-badge">Most popular</span>
+                        <h3>Creator</h3>
+                        <p class="price-description">For creators who share links every day.</p>
+                        <div class="price">$9 <small>/ month</small></div>
+                        <ul class="price-features">
+                            <li><span class="check">✓</span>Everything in Starter</li>
+                            <li><span class="check">✓</span>Advanced analytics</li>
+                            <li><span class="check">✓</span>Custom short aliases</li>
+                            <li><span class="check">✓</span>QR code downloads</li>
+                        </ul>
+                        <a class="button button-primary" href="#shorten">Start creating</a>
+                    </article>
+
+                    <article class="price-card">
+                        <h3>Business</h3>
+                        <p class="price-description">For teams managing campaigns at scale.</p>
+                        <div class="price">$29 <small>/ month</small></div>
+                        <ul class="price-features">
+                            <li><span class="check">✓</span>Everything in Creator</li>
+                            <li><span class="check">✓</span>Team workspaces</li>
+                            <li><span class="check">✓</span>Branded domains</li>
+                            <li><span class="check">✓</span>Priority support</li>
+                        </ul>
+                        <a class="button button-ghost" href="#about">Contact us</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <div class="cta-card">
+                    <div class="cta-copy">
+                        <h2>Ready to make your next link count?</h2>
+                        <p>Create a cleaner URL in seconds and start tracking its reach.</p>
+                    </div>
+                    <a class="button" href="#shorten">Shorten a link →</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer" id="about">
+        <div class="container footer-main">
+            <div class="footer-brand">
+                <a class="brand" href="/">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </span>
+                    <span>Linkly</span>
+                </a>
+                <p class="footer-about">Clean links, useful insights, and a simple dashboard—everything you need to make every share more effective.</p>
+            </div>
+
+            <div class="footer-column">
+                <h3>Product</h3>
+                <div class="footer-links">
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#dashboard">Dashboard</a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <div class="footer-links">
+                    <a href="#shorten">Create a link</a>
+                    <a href="/login?mode=admin">Admin</a>
+                    <a href="#about">About</a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Account</h3>
+                <div class="footer-links">
+                    <a href="<%= user ? "#dashboard" : "/login" %>"><%= user ? "My links" : "Dashboard" %></a>
+                    <a href="#shorten">New link</a>
+                    <a href="#pricing">Plans</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <span>© <%= new Date().getFullYear() %> Linkly. Built for better sharing.</span>
+            <span>Fast links. Clear insights. Less clutter.</span>
+        </div>
+    </footer>
+
+</body>
+</html>
